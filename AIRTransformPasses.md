@@ -25,6 +25,20 @@ asynchronous operations which are located at the front and back of the loop
 body's dependency tree. This pass is used in the ping-pong pattern transformation 
 to detect the insertion and exit points in data producer and consumer sub-trees.
 
+### `-air-annotate-refeed`
+
+_Lower opt-in re-feed loops to air.refeed_count on the channel_
+
+Opt-in producer for the single-buffer count-free re-broadcast primitive.
+An scf.for / affine.for tagged with the 'air.refeed_loop' unit attribute,
+whose body is a single loop-invariant air.channel.put, expresses "re-send
+one resident buffer once per iteration". This pass reads the loop's static
+trip count N into 'air.refeed_count' on the put's channel declaration and
+collapses the loop to the single put. Loops that do not match the safe shape
+(non-constant trip count, body other than one invariant put, or loop-carried
+values) are left unchanged. Not part of the default pipeline: the marker
+asserts the re-feed semantics the front-end intends.
+
 ### `-air-automatic-tiling`
 
 _Tile loop nests manually or automatically with prime factorization_
@@ -521,6 +535,24 @@ air.channel @channel_0 [1, 1] {broadcast_shape = [1, 4]}
 -shim-dma-channels-per-col : Number of physical DMA channels per direction per shim tile column. Used by auto-packet-switching detection to determine when channel count exceeds physical capacity.
 -force-shim-packet-flow    : Unconditionally mark all shim-bound channels (both input and output) as dma_packet, to enable time-multiplexed sharing with control packet flows.
 ```
+
+### `-air-enforce-channel-fifo-order`
+
+_Serialize same-channel async ops to preserve FIFO order_
+
+A single air.channel is an ordered FIFO, but air-dependency only orders
+channel ops that share a buffer. Ops on the same channel + same indices +
+same direction (put/put or get/get) that touch different buffers (e.g. two
+phases of a kernel temporally reusing one input/output channel) are left
+unordered and lower to racing BD chains. This pass adds a direct async
+dependency from each such op to the nearest preceding matching one in the
+same block. It runs late (after channel fusion has collapsed loop nests into
+single ops), so the deps are direct op-to-op edges that survive later
+canonicalization, unlike loop-carried ordering deps.
+
+NOTE: it only orders same-block ops (post-fusion collapsed channel ops); it
+does not order ops still nested in distinct loops (those would need
+loop-carried deps, which canonicalize strips).
 
 ### `-air-example-pass`
 

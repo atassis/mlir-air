@@ -68,7 +68,8 @@ These programming examples demonstrate how to leverage the AIR design flow with 
 | ML Pipeline | [MNIST-FC (ReLU 2D)](https://github.com/Xilinx/mlir-air/tree/main/programming_examples/mnist_fc/relu/) | f32/bf16 | ⚪ | 🟢 | [mnist_fc/relu/](https://github.com/Xilinx/mlir-air/tree/main/programming_examples/mnist_fc/relu/) |
 | ML Pipeline | [MNIST-FC (Argmax)](https://github.com/Xilinx/mlir-air/tree/main/programming_examples/mnist_fc/argmax/) | f32→i32 | ⚪ | 🟢 | [mnist_fc/argmax/](https://github.com/Xilinx/mlir-air/tree/main/programming_examples/mnist_fc/argmax/) |
 | ML Pipeline | [MNIST-FC (Integration)](https://github.com/Xilinx/mlir-air/tree/main/programming_examples/mnist_fc/integration/) | f32 | ⚪ | 🟢 | [mnist_fc/integration/](https://github.com/Xilinx/mlir-air/tree/main/programming_examples/mnist_fc/integration/) |
-| Memory | [Shared L1 Buffer](https://github.com/Xilinx/mlir-air/tree/main/programming_examples/shared_l1/) | bf16 | 🟢 | ⚪ | [shared_l1/](https://github.com/Xilinx/mlir-air/tree/main/programming_examples/shared_l1/) |
+| Memory | [Shared L1 Buffer (Multi-Herd)](https://github.com/Xilinx/mlir-air/tree/main/programming_examples/shared_l1_multi_herd/) | bf16 | 🟢 | ⚪ | [shared_l1_multi_herd/](https://github.com/Xilinx/mlir-air/tree/main/programming_examples/shared_l1_multi_herd/) |
+| Memory | [Shared L1 Buffer (Single-Herd)](https://github.com/Xilinx/mlir-air/tree/main/programming_examples/shared_l1_single_herd/) | bf16 | 🟢 | ⚪ | [shared_l1_single_herd/](https://github.com/Xilinx/mlir-air/tree/main/programming_examples/shared_l1_single_herd/) |
 | Quantization | [Dequant (AWQ int4→bf16)](https://github.com/Xilinx/mlir-air/tree/main/programming_examples/dequant_awq/) | int4/bf16 | 🟢 | 🟢 | [dequant_awq/](https://github.com/Xilinx/mlir-air/tree/main/programming_examples/dequant_awq/) |
 | Primitives | [Scalar/Vector Operations](https://github.com/Xilinx/mlir-air/tree/main/programming_examples/primitives/) | various | 🟢 | 🟢 | [primitives/](https://github.com/Xilinx/mlir-air/tree/main/programming_examples/primitives/) |
 
@@ -99,15 +100,3 @@ Most examples with a `Makefile` support `make run` (compile and execute on hardw
 python3 run.py                    # compile and run (XRTRunner)
 python3 run.py --print-module-only  # print IR only
 ```
-
-## Benchmarking
-
-The [matrix multiplication](matrix_multiplication/) examples include sweep infrastructure for measuring end-to-end latency across problem sizes:
-
-```bash
-cd matrix_multiplication/bf16
-make sweep4x4    # sweep problem sizes 256-2048 with a 4x4 herd
-make profile     # profile a single 1024^3 problem on hardware
-```
-
-Sweep results are saved as CSV files for analysis. See the [bf16 README](matrix_multiplication/bf16/README.md) for details on tile size configuration and architecture selection.
